@@ -1,0 +1,71 @@
+version: '3.7'
+services:
+  nginx:
+    image: nginx:alpine           # 镜像名称
+    container_name: nginx         # 容器名字
+    restart: always               # 开机自动重启
+    privileged: true
+    ports:                        # 端口号绑定（宿主机:容器内）
+      - '80:80'
+      - '443:443'
+    environment:
+      - TZ=Asia/Shanghai          # 时区
+    volumes:                      # 目录映射（宿主机:容器内）
+      - ./configs/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./vhosts:/etc/nginx/conf.d:ro
+      - ./domains:/var/www/html
+      - ./wwwlogs/nginx:/var/log/nginx
+      - ./sslkeys:/etc/nginx/ssl
+    networks:
+      - nginx_bridge
+  
+  php81:
+    build:
+      context: ./dockerfiles/php81
+      dockerfile: Dockerfile
+    container_name: php81
+    restart: always
+    privileged: true
+    volumes:
+      - ./domains:/var/www/html
+      - ./configs/php81:/usr/local/etc/php
+      - ./wwwlogs/supervisord.log:/var/log/supervisor/supervisord.log
+    ports:
+      - "9000:9000"
+    networks:
+      - nginx_bridge
+
+  php74:
+    build:
+      context: ./dockerfiles/php74
+      dockerfile: Dockerfile
+    container_name: php74
+    restart: always
+    privileged: true
+    volumes:
+      - ./vhosts:/var/www/vhosts
+      - ./domains:/var/www/html
+      - ./configs/php74:/usr/local/etc/php
+    ports:
+      - "9001:9000"
+    networks:
+      - nginx_bridge
+
+  php56:
+    build:
+      context: ./dockerfiles/php56
+      dockerfile: Dockerfile
+    container_name: php56
+    restart: always
+    privileged: true
+    volumes:
+      - ./domains:/var/www/html
+      - ./configs/php56:/usr/local/etc/php
+    ports:
+      - "9002:9000"
+    networks:
+      - nginx_bridge
+
+networks:
+  nginx_bridge:
+    driver: bridge
