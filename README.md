@@ -1,6 +1,8 @@
 # Nginx & PHP Run in Docker
 multiple php version and nginx run in docker
 
+![image](screenshots/1.jpg)
+
 ## 🍵 &nbsp;Qucik Start
 Make sure you have git, docker and docker-compose installed locally
 
